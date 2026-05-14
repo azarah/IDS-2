@@ -1,0 +1,13 @@
+# Clients have ID#s in order for their assignments to be tracked while utilizing IDS Invoicing tool to rate Assignments.
+
+Client ID#, First and Last Name, Address, Phone Number, Doula ID#
+
+KE20, Illy Patterson, 456 s Kick Lane, Chicago, IL 60629, 616-930-2343, 4823
+TI23, Yvette Jones, 124 E Kick Lane, Chicago, IL 60629, 616-930-2343, 2343
+ZX09, Inayah Sims, 124 E Kick Lane, Chicago, IL 60629, 616-930-2343, 1233
+W233, Ureka Hakeem, 124 E Kick Lane, Chicago, IL 60629, 616-930-2343, 1222
+B112, Provence Rivers, 124 E Kick Lane, Chicago, IL 60629, 616-930-2343, 0021
+Z782, Vanilla Jamison, 124 E Kick Lane, Chicago, IL 60629, 616-930-2343, 9112
+M222, Kiesha Brown, 124 E Kick Lane, Chicago, IL 60629, 616-930-2343, 0021
+B021, Reese Reeds, 124 E Kick Lane, Chicago, IL 60629, 616-930-2343, 9823
+Y920, Kitty Wheeler, 124 E Kick Lane, Chicago, IL 60629, 616-930-2343, 0920

@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IDS Invoice Application — CIS 245 Documentation</title>
+  <style>
+    :root {
+      --ink: #2c241c;
+      --muted: #5c534a;
+      --border: #e0d8ce;
+      --code-bg: #f3f0eb;
+      --accent: #b8860b;
+      --accent-soft: #d4a84b;
+      --accent-wash: #f5efe4;
+      --deep: #3d3429;
+      --page-max: 48rem;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Candara", "DejaVu Sans", system-ui, sans-serif;
+      font-size: 11pt;
+      line-height: 1.58;
+      color: var(--ink);
+      background: linear-gradient(165deg, #ebe4d9 0%, #ddd5c8 45%, #e8e2da 100%);
+    }
+
+    .pdf-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem 1rem;
+      padding: 0.65rem 1rem;
+      background: var(--deep);
+      color: #f5f0e8;
+      box-shadow: 0 2px 12px rgba(44, 36, 28, 0.2);
+    }
+    .pdf-toolbar strong { font-weight: 600; }
+    .pdf-toolbar button {
+      font: inherit;
+      cursor: pointer;
+      padding: 0.45rem 1rem;
+      border: none;
+      border-radius: 6px;
+      background: linear-gradient(180deg, var(--accent-soft) 0%, var(--accent) 100%);
+      color: #1f1a14;
+      font-weight: 600;
+    }
+    .pdf-toolbar button:hover { filter: brightness(1.06); }
+    .pdf-toolbar .hint {
+      font-size: 0.88rem;
+      color: #c9c2b8;
+      max-width: 36rem;
+      line-height: 1.4;
+    }
+
+    .doc {
+      max-width: var(--page-max);
+      margin: 0 auto;
+      padding: 0 0 3rem;
+      background: #fffefb;
+      min-height: 100vh;
+      box-shadow: 0 0 0 1px rgba(61, 52, 41, 0.06), 0 24px 48px rgba(44, 36, 28, 0.08);
+      border-top: 4px solid var(--accent);
+    }
+
+    .doc-cover {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+      gap: 0;
+      align-items: stretch;
+      background: linear-gradient(135deg, var(--accent-wash) 0%, #fffcf7 55%, #fffefb 100%);
+      border-bottom: 1px solid var(--border);
+      page-break-inside: avoid;
+    }
+    .doc-cover__visual {
+      margin: 0;
+      min-height: 220px;
+      background: var(--deep);
+    }
+    .doc-cover__visual img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 220px;
+      object-fit: cover;
+      object-position: center 30%;
+    }
+    .doc-cover__text {
+      padding: 1.75rem 1.75rem 1.85rem;
+      border-left: 4px solid var(--accent);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .doc-cover__badge {
+      margin: 0 0 0.65rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .doc-cover__text h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.55rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin: 0 0 0.35rem;
+      color: var(--deep);
+    }
+    .doc-cover__text h2 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      font-style: italic;
+      margin: 0 0 1rem;
+      padding: 0;
+      border: none;
+      color: var(--muted);
+    }
+    .doc-cover__meta {
+      font-size: 0.92rem;
+      line-height: 1.65;
+      color: var(--ink);
+    }
+    .doc-cover__meta strong { color: var(--deep); }
+
+    @media (max-width: 720px) {
+      .doc-cover {
+        grid-template-columns: 1fr;
+      }
+      .doc-cover__text {
+        border-left: none;
+        border-top: 4px solid var(--accent);
+      }
+      .doc-cover__visual { max-height: 240px; }
+      .doc-cover__visual img { min-height: 200px; max-height: 240px; }
+    }
+
+    .doc-content {
+      padding: 1.75rem 1.75rem 2.5rem;
+    }
+    .doc-content > hr.doc-divider:first-of-type {
+      margin-top: 0;
+    }
+    .doc-content > hr.doc-divider:first-of-type + h2 {
+      margin-top: 1rem;
+    }
+
+    .doc h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.65rem;
+      font-weight: 700;
+      line-height: 1.25;
+      margin: 0 0 0.35rem;
+      border: none;
+      color: var(--deep);
+    }
+    .doc h2 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.18rem;
+      margin: 1.85rem 0 0.65rem;
+      padding: 0.35rem 0 0.45rem 0.65rem;
+      border: none;
+      border-left: 4px solid var(--accent);
+      border-bottom: 1px solid var(--border);
+      color: var(--deep);
+    }
+    .doc h3 {
+      font-size: 1.02rem;
+      font-weight: 600;
+      margin: 1.35rem 0 0.55rem;
+      color: #3d362c;
+    }
+    .doc p { margin: 0.65rem 0; }
+    .doc hr,
+    .doc-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.65rem 0;
+    }
+    .doc a { color: #6b4e1a; text-decoration-color: rgba(107, 78, 26, 0.35); }
+    .doc a:hover { color: var(--accent); }
+    .doc ul, .doc ol { margin: 0.5rem 0 0.75rem; padding-left: 1.35rem; }
+    .doc li { margin: 0.25rem 0; }
+
+    .doc table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      margin: 1rem 0;
+    }
+    .doc th, .doc td {
+      border: 1px solid var(--border);
+      padding: 0.45rem 0.52rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    .doc th {
+      background: linear-gradient(180deg, #f8f2e8 0%, #efe6d8 100%);
+      font-weight: 600;
+      color: var(--deep);
+    }
+
+    .doc pre, .doc code {
+      font-family: "Cascadia Code", "Consolas", monospace;
+      font-size: 0.84em;
+    }
+    .doc code {
+      background: var(--code-bg);
+      padding: 0.12em 0.35em;
+      border-radius: 4px;
+      border: 1px solid rgba(224, 216, 206, 0.8);
+    }
+    .doc pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.85rem 1rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .doc pre code {
+      background: none;
+      padding: 0;
+      font-size: 0.9em;
+      border: none;
+    }
+
+    figure.diagram {
+      margin: 1.25rem 0;
+      padding: 0.75rem;
+      background: var(--accent-wash);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      page-break-inside: avoid;
+    }
+    figure.diagram img {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+    }
+    figure.diagram-flow img { max-height: 85vh; object-fit: contain; object-position: top center; }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 1rem;
+      margin: 0 0 1rem;
+    }
+
+    .doc-closing {
+      margin: 0 1.75rem 2rem;
+      padding-top: 0.5rem;
+      page-break-inside: avoid;
+    }
+    .doc-closing figure {
+      margin: 0 0 1rem;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 24px rgba(44, 36, 28, 0.1);
+    }
+    .doc-closing img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 380px;
+      object-fit: cover;
+      object-position: center 25%;
+    }
+    .doc-closing figcaption {
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-style: italic;
+      padding: 0.65rem 0.85rem;
+      background: var(--accent-wash);
+      border-top: 1px solid var(--border);
+    }
+    .doc-closing .doc-outro {
+      margin: 0.75rem 0 0;
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    @media print {
+      body { background: #fff; }
+      .pdf-toolbar { display: none !important; }
+      .doc {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        min-height: 0;
+        box-shadow: none;
+        border-top-width: 3px;
+      }
+      .doc-content { padding: 0; }
+      .doc-cover__text { padding: 0.5rem 0 1rem 0.75rem; }
+      .doc-cover__visual img { min-height: 180px; }
+      .doc-closing { margin: 1rem 0 0; }
+      .doc a[href^="http"]::after {
+        content: " (" attr(href) ")";
+        font-size: 0.85em;
+        color: var(--muted);
+      }
+      .doc a[href^="mailto"]::after { content: ""; }
+    }
+
+    @page {
+      size: letter;
+      margin: 0.65in 0.7in;
+    }
+
+    @media print {
+      h1, h2, h3 { page-break-after: avoid; }
+      figure.diagram-context, table, pre, blockquote { break-inside: avoid; }
+      figure.diagram-flow { break-inside: auto; page-break-inside: auto; }
+      tr { break-inside: avoid; }
+      thead { display: table-header-group; }
+    }
+  </style>
+</head>
+<body>
+  <header class="pdf-toolbar no-print">
+    <strong>PDF export</strong>
+    <button type="button" id="printBtn">Print / Save as PDF…</button>
+    <span class="hint">In the dialog, choose <strong>Save as PDF</strong> or <strong>Microsoft Print to PDF</strong> for a paginated file. Headers repeat naturally on each printed page.</span>
+  </header>
+  <main class="doc">
+    <header class="doc-cover">
+      <figure class="doc-cover__visual">
+        <img src="IDS-Telephoneservice.png" width="640" height="480" alt="Professional telephone support: a team member in a mustard-yellow hijab wearing a headset, representing IDS remote coordination services." />
+      </figure>
+      <div class="doc-cover__text">
+        <p class="doc-cover__badge">Software development life cycle (SDLC) documentation</p>
+        <h1>Individualized Doula Services (IDS) Invoice Application</h1>
+        <h2>CIS 245 Final Project — Documentation Package</h2>
+        <div class="doc-cover__meta">
+          <p><strong>Prepared by:</strong> Charletta S. Hudson<br />
+          <strong>Prepared for:</strong> Individualized Doula Services (IDS)<br />
+          <strong>Application ID:</strong> <code>IDS_Invoice_Application.py</code></p>
+        </div>
+      </div>
+    </header>
+    <div class="doc-content">
+<hr class="doc-divider" />
+<h2>1. Opportunity</h2>
+<p>Individualized Doula Services (IDS) provides prenatal and postpartum doula care. Personnel are certified, maintain current CPR training, and accommodate irregular schedules. Billing policy distinguishes telephone-only services, charged at a flat agreed rate, from home and hospital visits, which are billed by the hour in addition to the telephone base layer.</p>
+<p>IDS needs a reliable application that aligns billable activity with its published fee schedule (document <code>IDS-Rates.txt</code>) and produces client-ready invoices. Each invoice should include the patient’s identifying information (the expectant mother as IDS's client), base charges attributable to telephone or flat-priced assignments, itemized additional services with amounts, and a total due for the stated billing period. The application is able to run on local computers without requiring IDS to operate a dedicated internet-facing server for this purpose.</p>
+<p>IDS has authorized recommendations for hardware and training proportionate to running a Python program on office equipment, with editable text-based lists for clients, doulas, and rates (<code>IDS-Clients.txt</code>, <code>IDS-Doulas.txt</code>, and optional <code>IDS-Admin.txt</code> for extra administrator sign-ins). A related goal is to reduce disputes and administrative burden by recording each client’s assigned doula in the client list and by charging only through standard service codes drawn from the firm’s menu, rather than free-text descriptions that invite inconsistency.</p>
+<hr />
+<h2>2. Requirements analysis</h2>
+<p>Requirements draw on direct project documentation, working data files, and client discussions. </p>
+<h3>2.1 General requirements</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Requirement</th>
+<th>Description</th>
+<th>Category</th>
+<th>Priority</th>
+<th>Primary contacts</th>
+<th>How to confirm</th>
+<th>Affected parties</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Patient identification on invoice</td>
+<td>Invoice clearly identifies the pregnant patient per IDS client record.</td>
+<td>Billing / IL Compliance</td>
+<td>Required</td>
+<td>IDS Admin</td>
+<td>Interview; roster review</td>
+<td>Client; IDS Admin</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Base charges</td>
+<td>Telephone (flat-rate) assignments appear as a base subtotal per IDS policy.</td>
+<td>Billing</td>
+<td>Required</td>
+<td>IDS Admin</td>
+<td>Review of rate file and sample invoices</td>
+<td>Client; IDS Admin</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Itemized additional services</td>
+<td>Visits, mileage, overnight stays, and similar items listed with quantities and dollar amounts.</td>
+<td>Billing</td>
+<td>Required</td>
+<td>Doulas; IDS Admin</td>
+<td>Observation against service menu</td>
+<td>Client; IDS Admin</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Period total</td>
+<td>Total due is explicit for the billing period named in configuration.</td>
+<td>Billing</td>
+<td>Required</td>
+<td>IDS Admin</td>
+<td>Requirements review</td>
+<td>Client</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Local operation</td>
+<td>Baseline scope does not require a shared company database server or mandatory hosted backend.</td>
+<td>Technical</td>
+<td>Requirements</td>
+<td>Software Developer</td>
+<td>Written requirement</td>
+<td>IDS Admin</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Python delivery</td>
+<td>Implemented in Python, with narrative overview and explanatory comments embedded in source code.</td>
+<td>Technical</td>
+<td>Requirements</td>
+<td>Software Developer</td>
+<td>IDS Specification</td>
+<td>Software Developer</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Doula roster file</td>
+<td>Stores doula identifiers, names, addresses, telephone numbers, and CPR certification wording.</td>
+<td>Data</td>
+<td>Required</td>
+<td>IDS Admin</td>
+<td>Approved file layout</td>
+<td>IDS Admin</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Client roster file</td>
+<td>Stores client identifiers, names, addresses, telephones, and assigned doula identifier.</td>
+<td>Data</td>
+<td>Required</td>
+<td>IDS Admin</td>
+<td>Approved file layout</td>
+<td>IDS Admin</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Rates file</td>
+<td>Single place for telephone base rate, hourly home and hospital rates, mileage, overnight charge, billing period label.</td>
+<td>Data</td>
+<td>Required</td>
+<td>Finance; administration</td>
+<td>Reference file <code>IDS-Rates.txt</code></td>
+<td>IDS Admin</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Role-based entry</td>
+<td>Recognizes <strong>Client ID</strong>, <strong>Doula ID</strong>, or <strong>Administrator</strong> and opens the matching experience.</td>
+<td>Operations</td>
+<td>Required</td>
+<td>Doulas; administration</td>
+<td>Guided walkthrough</td>
+<td>IDS Staff</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Supportive tone</td>
+<td>On-screen wording is courteous and instructional while remaining precise for billing.</td>
+<td>Experience design</td>
+<td>Desired</td>
+<td>IDS leadership</td>
+<td>Pilot feedback</td>
+<td>All</td>
+</tr>
+</tbody>
+</table>
+<h3>2.2 Analysis — inclusion in software and supporting design</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Requirement</th>
+<th>In plain language</th>
+<th>Included</th>
+<th>Realization</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Patient block</td>
+<td>Patient details appear on the printed-style invoice layout.</td>
+<td>Yes</td>
+<td>Structured client record and dedicated invoice header formatting (types and functions centered on Client and format_invoice in source).</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Base versus additional charges</td>
+<td>Telephone flat items summarize under base; visits and similar items group under additional services.</td>
+<td>Yes</td>
+<td>Invoice subtotals derive from ine item type, via methods base_subtotal and additional_subtotal.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Service selection</td>
+<td>Staff choose services via menus rather than relying solely on memorized internal codes (codes still permitted for trained users).</td>
+<td>Yes</td>
+<td>Guided category prompts, keyboard shortcuts where helpful, optional direct code entry.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Accurate amounts</td>
+<td>Dollars and cents remain consistent across many lines.</td>
+<td>Yes</td>
+<td>Money handled with decimal.Decimal and consistent rounding rules for display.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Editable master data</td>
+<td>Administrators update people and rates in text files without modifying program code each time.</td>
+<td>Yes</td>
+<td>Dedicated routines load clients, doulas, and rates from files next to the program.</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Assignment consistency</td>
+<td>Prefer showing a known doula when the client row lists one; alert when identifiers do not line up across files.</td>
+<td>Yes</td>
+<td>Lookup from client roster to doula roster; administrator summary surfaces gaps.</td>
+</tr>
+</tbody>
+</table>
+<h3>2.3 Interview Questions — IDS Firm</h3>
+<ol>
+<li>Describe today’s billing path from delivery of services through agreement on amounts through delivery of the invoice to the client.</li>
+<li>How does IDS classify work that belongs under standard telephone bundles versus charges that qualify as hourly, mileage-based, or other add-ons?</li>
+<li>Who is authorized to approve late changes to an invoice once a doula has entered line items?</li>
+<li>What policy governs printing, emailing, or archiving draft invoices saved as invoice_&lt;ClientID&gt;.txt?</li>
+<li>How often do rates change, and who must approve updates to the rates file before they take effect?</li>
+<li>How are doulas trained on recording mileage and travel time so billing stays uniform?</li>
+<li>If a client record lacks an assigned doula identifier, should the system block invoicing or route the case to an administrator?</li>
+</ol>
+<h3>2.4 Survey Questions — Doulas</h3>
+<ol>
+<li>On a scale of 1 to 5, how easy is it to find the right category (telephone, hospital, home) in the on-screen menus?</li>
+<li>After training, do combined keystroke shortcuts (such as 2,3) meaningfully reduce effort, or should casual users stay on numbered menus alone?</li>
+<li>When families question charges, what labeling or wording still creates confusion—and what would clarify it?</li>
+</ol>
+<h3>2.5 Survey Questions — Clients and Families</h3>
+<ol>
+<li>Were you informed, before invoicing, how telephone package charges differ from in-person or time-based charges? Answer yes or no with comment.</li>
+<li>On a scale of 1 to 5, how clear was the dollar breakdown during any pilot invoicing period?</li>
+<li>Open-ended comments about tone, completeness, or sensitivity of personal information displayed.</li>
+</ol>
+<hr />
+<h2>3. Planning</h2>
+<h3>3.1 Proposed solution</h3>
+<p>Deliver IDS_Invoice_Application.py, one Python module, packaged with companion plain-text master files. Upon launch it:</p>
+<ol>
+<li>Reads <strong>rates and roster information</strong> from files stored alongside the program.</li>
+<li>Organizes internal logic into coherent areas inside that single module: loading files, translating services to prices and labels, conversational menus, printable invoice wording, administrator summaries.</li>
+<li>Accepts entry as a <strong>client</strong> (by Client ID), <strong>doula</strong> (by Doula ID, with selection among assigned clients where several apply), or <strong>administrator</strong> (including optional IDs listed beside the program in <code>IDS-Admin.txt</code>; the word <strong>Admin</strong> always works).</li>
+<li>After preview, optionally saves <code>invoice_&lt;ClientID&gt;.txt</code> only when the user confirms.</li>
+</ol>
+<p>This allows IDS to retain spreadsheet-export–friendly text lists instead of pre-installed tablet storefronts.</p>
+<p><strong>Developer Thought Process</strong></p>
+<ul>
+<li>A single shipped module lowers installation steps for a small practice.  </li>
+<li>One authoritative set of text lists carries roster and economics; administrators revise those files directly.  </li>
+<li>Doula assignment stored on each client row aligns billing attribution with operational assignment and reduces disagreement about responsibility for each line item.  </li>
+<li>Decimal-based arithmetic avoids penny drift that can undermine trust.</li>
+</ul>
+<p><strong>Developer note.</strong> Early internal drafts were separate Python entry scripts for clients and doulas. The current delivered product unifies both roles (and administration) in <code>IDS_Invoice_Application.py</code>. </p>
+<h3>3.2 In scope</h3>
+<ol>
+<li>Terminal-based invoice building with on-screen preview and optional file save.</li>
+<li>A demonstration mode (<code>--demo</code>) that prints a predictable sample invoice for grading or acceptance checks.</li>
+<li>Administrator views that list assignments and call attention when a client’s doula identifier does not match any doula profile.</li>
+<li>External documentation (this package) and internal comments in the <code>.py</code> file.</li>
+<li>Brief staff orientation material covering menus, file locations, and safe operating practices.</li>
+</ol>
+<h3>3.3 Out of scope</h3>
+<ol>
+<li><strong>Legal advice</strong> on health privacy or billing regulations; IDS retains qualified counsel.</li>
+<li><strong>Enterprise web login</strong> (single sign-on, multi-factor authentication, granular web permissions) beyond trusting the office workstation for access control.</li>
+<li><strong>Automatic enforcement of HR rules</strong> from CPR text in files; the file holds informational wording, not an automated compliance gate.</li>
+<li><strong>Automatic merging</strong> of conflicting edits when two people change the same master text file through cloud sync without coordination.</li>
+<li><strong>Packaged mobile or tablet application</strong>; the baseline assumes Python on a desktop or laptop with a terminal window.</li>
+</ol>
+<h3>3.4 Roadmap (completed stages)</h3>
+<ol>
+<li>Confirm invoice layout, user roles, and text file formats.</li>
+<li>Complete technical design: data structures, pricing categories, user flows (see Design section).</li>
+<li>Implement file loading and the master service list with prices.</li>
+<li>Implement interactive sessions, editing loop, and demonstration mode.</li>
+<li>Refine usability (shortcuts, safe file names on Windows).</li>
+<li>Verify with demonstration output and walkthroughs for client, doula, and administrator paths.</li>
+<li>Transfer to operations under the support expectations in Section 6.</li>
+</ol>
+<h3>3.5 How the program is organized internally</h3>
+<p>All areas below live in one python file but address distinct responsibilities:</p>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Representative parts of the source</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reading files</td>
+<td>Routines that open <code>IDS-Rates.txt</code>, <code>IDS-Clients.txt</code>, <code>IDS-Doulas.txt</code>, <code>IDS-Admin.txt</code></td>
+<td>Turn text rows into structured records the program can use</td>
+</tr>
+<tr>
+<td>Core records</td>
+<td>Definitions for client, doula, rate table, invoice line, full invoice</td>
+<td>Hold business information in a consistent shape</td>
+</tr>
+<tr>
+<td>Pricing</td>
+<td>Catalog of service codes, unit price lookup, building a line item</td>
+<td>Convert chosen services into dollars</td>
+</tr>
+<tr>
+<td>Conversation flow</td>
+<td>Main sign-in, line-item editing loop, administrator menus</td>
+<td>Guide the operator through prompts</td>
+</tr>
+<tr>
+<td>Invoice layout</td>
+<td>Function that renders the readable invoice block</td>
+<td>Produce identical text whether shown on screen or saved</td>
+</tr>
+</tbody>
+</table>
+<p>Higher-level layout depends only on assembled invoice contents; dependence runs in one direction rather than looping back unnecessarily. If IDS later splits code across files, a new file called <code>ids_core.py</code> could centralize loading and arithmetic while thin front ends handle sign-in—but that is optional.</p>
+<h3>Software and equipment summary</h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Language runtime</td>
+<td>Recent Python (3.11 or newer suggested)</td>
+</tr>
+<tr>
+<td>Add-on libraries</td>
+<td>None required; standard installation is sufficient</td>
+</tr>
+<tr>
+<td>Editing tools</td>
+<td>Visual Studio Code, Notepad++, or equivalent</td>
+</tr>
+<tr>
+<td>Hardware</td>
+<td>Reliable office desktops or laptops (Windows-compatible paths assumed)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mandatory new purchases:</strong> none, unless IDS elects optional paid backup tools or eventually funds a graphical interface.</p>
+<h3>Staff impact</h3>
+<ul>
+<li><strong>Administrators</strong> remain custodians of master text files and rate settings.  </li>
+<li><strong>Doulas</strong> receive concise training on navigating categories and entering hours, miles, or counts.  </li>
+<li><strong>Clients</strong> may use the application directly with Client ID entry if IDS chooses that workflow.</li>
+</ul>
+<hr />
+<h2>4. Design</h2>
+<p>Invoice layout intentionally splits <strong>telephone base charges</strong> from <strong>additional services</strong> (visits, mileage, overnight arrangements) so families see a transparent structure.</p>
+<h3>Optional purchases</h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Benefit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Professional Python tooling subscriptions</td>
+<td>Faster staff turnover for anyone maintaining code</td>
+</tr>
+<tr>
+<td>Cloud or managed backup</td>
+<td>Recovery if hardware fails; protects client and fiscal text files</td>
+</tr>
+<tr>
+<td>Future graphical interface</td>
+<td>Easier for staff uneasy with a terminal window</td>
+</tr>
+</tbody>
+</table>
+<h3>Risk awareness (appropriate to a local office tool)</h3>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Direction for mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unauthorized edits to the rates file</td>
+<td>Restrict file permissions, document approvers, keep dated backups</td>
+</tr>
+<tr>
+<td>Casual use of Client or Doula IDs as if they were strong passwords</td>
+<td>Treat identifiers as sensitive; lock workstations; train staff</td>
+</tr>
+<tr>
+<td>Loss of data</td>
+<td>Regular backup copies of master lists and saved invoices</td>
+</tr>
+</tbody>
+</table>
+<h3>Information the program tracks (conceptual)</h3>
+<table>
+<thead>
+<tr>
+<th>Record</th>
+<th>What it holds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Client</td>
+<td>Identifier, name, address, telephone, assigned doula identifier</td>
+</tr>
+<tr>
+<td>Doula</td>
+<td>Identifier, name, address, telephone, certification wording</td>
+</tr>
+<tr>
+<td>Rate table</td>
+<td>Telephone base, hourly rates, mileage rate, overnight rate, billing period label</td>
+</tr>
+<tr>
+<td>Line on invoice</td>
+<td>Service code, description, charge type, quantity, unit price, line total, doula reference when known</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Charge types</strong> distinguish flat telephone items, hourly hospital work, hourly home work, mileage by mile, and flat overnight units. Sign-in logic checks for <strong>administrator</strong> first; in the rare case of identifier overlap between a client and doula, <strong>client</strong> takes precedence after that check. Final output uses a consistent <strong>IDS invoice header</strong> so every document is immediately recognizable.</p>
+<h3>4.1 Design approach</h3>
+<p>Development proceeded in stages: a working core (read files, print demonstration invoice) before polish on menus and messaging. The result is production-oriented script.</p>
+<h3>4.2 Application flow</h3>
+<p>The diagram below reflects the flow of the program.</p>
+<figure class="diagram diagram-flow"><img src="flowchart-application-flow.svg" alt="IDS application flowchart (demo mode, sign-in, invoice loop)." /></figure>
+
+<h3>4.3 Context diagram — people, files, and program</h3>
+<figure class="diagram diagram-context"><img src="flowchart-context-diagram.svg" alt="Context diagram: operators, text files, application, and invoice output." /></figure>
+
+<hr />
+<h2>5. Implementation</h2>
+<p><strong>Source location:</strong> <code>IDS Invoice Application/IDS_Invoice_Application.py</code></p>
+An IDE was used with a locally installed Python interpreter to run the program. The Program was also successfully ran online using <a href="https://www.online-python.com/">Online Python - IDE, Editor, Compiler, Interpreter</a> </p>
+<pre><code class="language-markdown">https://www.online-python.com
+</code></pre>
+<p><strong>Typical commands</strong> (adjust the folder path):</p>
+<pre><code class="language-powershell">cd &quot;&lt;path&gt;\IDS Invoice Application&quot;
+python IDS_Invoice_Application.py
+python IDS_Invoice_Application.py --demo
+</code></pre>
+<p>During normal use, <code>Help</code> at the identifier prompt prints a reference table of clients and doulas. Leaving the identifier blank exits politely without saving.</p>
+<p>The program terminates with an explicit error indication if normal mode loads <strong>no clients</strong>—a safeguard against empty or malformed client files—while demonstration mode can still synthesize a minimal illustration when needed.</p>
+<h3>Where to start reading source code</h3>
+<table>
+<thead>
+<tr>
+<th>Topic</th>
+<th>Approximate anchor in code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Currency display and rounding</td>
+<td><code>money</code> and decimal handling nearby</td>
+</tr>
+<tr>
+<td>Building client and doula rows from text</td>
+<td>Parsing helpers named for clients and doulas</td>
+</tr>
+<tr>
+<td>Invoice wording</td>
+<td><code>format_invoice</code></td>
+</tr>
+<tr>
+<td>Startup and conversations</td>
+<td><code>main</code><strong>,</strong> <code>interactive_build</code></td>
+</tr>
+</tbody>
+</table>
+<p>The module’s opening commentary states that the program runs <strong>offline</strong>, reads <strong>local text files</strong>, produces <strong>safe Windows file names</strong> for saved invoices, and supports <strong>client, doula, and administrator</strong> entry.</p>
+ 
+<p><strong>Strengths</strong> carried forward from design review: single authoritative text-based data store, one program for all roles, every line tied to an official service code, no commercial library dependencies.</p>
+<p><strong>Accepted limitations:</strong> terminal interface may feel unfamiliar to some staff; security assumes a trusted office machine; concurrent editing of the same master file without coordination remains an operational risk.</p>
+<p><strong>Possible later improvements:</strong> extract shared logic into <code>ids_core.py</code>; add stronger startup checks (for example, every assigned doula exists in the doula list); optional append-only activity log for audit support.</p>
+<hr />
+<h2>6. Documentation, maintenance, and support</h2>
+<h3>6.1 Support expectations</h3>
+<table>
+<thead>
+<tr>
+<th>Topic</th>
+<th>Proposed baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Coverage after acceptance</td>
+<td>Ninety calendar days from formal go-live for <strong>serious defects</strong> (program will not start, crashes during normal entry, or invoice math differs materially from agreed rules); exact terms subject to contract</td>
+</tr>
+<tr>
+<td>How to report issues</td>
+<td>Dated email or ticket thread</td>
+</tr>
+<tr>
+<td>Response targets</td>
+<td>Acknowledgment within roughly one to two business days for routine items; priority attention for invoice total errors, targeted toward resolution within about five business days</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Outside standard support</strong> unless separately funded: large new features, hosting or website integration, repair of damaged operating systems, use of unofficial modified copies of the program.</p>
+<p><strong>Primary responsibility for routine backups</strong> remains with <strong>IDS</strong>; the developer can advise on recovery steps within the engagement.</p>
+<h3>6.2 Suggested ongoing activities after handoff</h3>
+<ol>
+<li>Keep a journal on when Python or Windows versions change significantly.</li>
+<li>Refer to instructions for exporting spreadsheets to comma-separated text without breaking columns.</li>
+<li>Run periodic checks that rate changes still match expected demonstration output.</li>
+<li>Schedule annual reminder about encrypting laptops and limiting physical access to invoice folders.</li>
+<li>Plan Follow-Up meeting to discuss code split into multiple files,  richer validation or any suggested updates.</li>
+</ol>
+<h3>6.3 Operating precautions</h3>
+<p>Back up master lists before bulk edits; lock unattended screens; do not run Python files from unknown email attachments; re-check sample invoices after changing the rates file; avoid two people overwriting the same master list without discipline; treat saved invoices as personally identifiable information when sharing.</p>
+<p>This document does <strong>not</strong> supplement legal interpretation of health privacy law.</p>
+<p><strong>Developer contact</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Developer/Organization</td>
+<td>Chareletta Hudson/Zarah Sharda Creative Agency</td>
+</tr>
+<tr>
+<td>Email</td>
+<td><a href="mailto:chudson78@student.ccc.edu">chudson78@student.ccc.edu</a></td>
+</tr>
+</tbody>
+</table>
+<p>Paid enhancements require an updated written scope.</p>
+<hr />
+<h2>7. Program output (example invoice)</h2>
+<p><strong>Demonstration command</strong></p>
+<pre><code class="language-powershell">python IDS_Invoice_Application.py --demo
+</code></pre>
+<p><strong>Sample output</strong> (figures depend on current roster and rate files; this snapshot matches the project’s reference example)</p>
+<pre><code>==============================================================
+INDIVIDUALIZED DOULA SERVICES (IDS) - CLIENT INVOICE
+==============================================================
+
+Billing period: Q1 2026
+
+Patient (client) information
+------------------------------------------
+  Client ID:    KE20
+  Name:         Illy Patterson
+  Address:      456 s Kick Lane, Chicago, IL 60629
+  Phone:        616-930-2343
+  Assigned doula ID: 4823
+
+Charges
+------------------------------------------
+  Base (telephone / flat) subtotal            $200.00
+
+  Telephone (flat-rate) assignments
+    * Telephone - Follow-up - Doula 4823
+        Code Doula_Tele01_FollowUp  x 2 @ $100.00  =  $200.00
+
+  Additional services (home, hospital, mileage, overnight, etc.)
+    * Hospital - Labor support - Doula 4823
+        Code Doula_Hos01_LaborSupport  x qty 4 @ $50.00  =  $200.00
+    * Mileage (agreed rate per mile) - Doula 4823
+        Code IDS_Mileage  x qty 18 @ $0.73  =  $13.05
+    * Home - Recovery - Doula 4823
+        Code Doula_Home04_Recovery  x qty 2 @ $50.00  =  $100.00
+
+  Additional services subtotal                $313.05
+
+------------------------------------------
+  TOTAL DUE (billing period)                  $513.05
+==============================================================
+</code></pre>
+<p><strong>Reading the example</strong></p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base</td>
+<td>Two telephone line items at the configured flat telephone rate in the rates file.</td>
+</tr>
+<tr>
+<td>Mileage line</td>
+<td>Miles multiplied by the agreed per-mile rate; screen may round the unit rate for display while cents reconcile on the line total.</td>
+</tr>
+</tbody>
+</table>
+<hr class="doc-divider" />
+    <footer class="doc-closing">
+      <figure>
+        <img src="IDS-holding%20baby.png" width="960" height="640" alt="A caregiver in a mustard-yellow hijab holds a sleeping newborn swaddled in cream fabric—representing the families Individualized Doula Services supports beyond billing and systems." />
+        <figcaption>IDS care extends from coordinated telephone support through the postpartum journey—this documentation supports accountable, transparent invoicing in service of that mission.</figcaption>
+      </figure>
+      <p class="doc-outro"><em>Thank your for your time and consideration. </em></p>
+    </footer>
+    </div>
+  </main>
+  <script>
+    document.getElementById("printBtn").addEventListener("click", function () { window.print(); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+# Doulas and Clients have aggreed for their assignments to be rated and tracked in order to utilize IDS Invoicing tool.
+
+IDS Assignment Rates.
+
+tele_base=100 dollars
+home_rate_per_hr=50 dollars
+hospital_rate_per_hr=50 dollars
+mileage_rate_per_mile = 72.5 cents
+overnight_rate=400
+# billing_period_label= Q1 2026
+
+IDS Assignemts (alias of services) offered by Doulas that the client has requested.
+
+Telephone Menu
+- Telephone SubMenus 
+    - Doula_Tele01_FollowUp = tele_base
+    - Doula_Tele02_Support = tele_base
+    - Doula_Tele03_Reminders = tele_base
+    - Doula_Tele04_Paperwork = tele_base
+    - Doula_Tele05_Education = tele_base
+    - Doula_Tele06_Resources = tele_base
+
+Hospital Menu
+- Hospital SubMenu
+    - Doula_Hos01_LaborSupport = hospital_rate_per_hr
+    - Doula_Hos02_Advocacy = hospital_rate_per_hr
+    - Doula_Hos03_Coaching = hospital_rate_per_hr
+    - Doula_Hos04_Bedside = hospital_rate_per_hr
+    - Doula_Hos05_Logistics = hospital_rate_per_hr
+
+Home Menu
+- Home Menu
+    - Doula_Home01_FollowUp = home_rate_per_hr
+    - Doula_Home02_Support = home_rate_per_hr
+    - Doula_Home03_LaborSupport = home_rate_per_hr
+    - Doula_Home04_Recovery = home_rate_per_hr
+    - Doula_Home05_Education = home_rate_per_hr
+
+ 

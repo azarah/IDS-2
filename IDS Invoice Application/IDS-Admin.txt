@@ -1,0 +1,2 @@
+# IDS administrator sign-in IDs (one per line, case-insensitive).
+# The override ID "Admin" always works; add more IDs below if needed.

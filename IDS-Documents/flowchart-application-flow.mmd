@@ -1,0 +1,31 @@
+flowchart TD
+    A[Start: load IDS-Rates, IDS-Clients, IDS-Doulas] --> B{Demo mode?}
+    B -->|Yes| Z[Print sample invoice → Exit]
+    B -->|No| C{Any clients loaded?}
+    C -->|No| Err[Exit with message: no clients loaded]
+    C -->|Yes| D[Welcome / ask for IDS identifier]
+    D --> E{User typed Help?}
+    E -->|Yes| E1[Show ID tables] --> D
+    E -->|No| F{Empty input?}
+    F -->|Yes| G[Exit]
+    F -->|No| H{Administrator?}
+    H -->|Yes| AD[Administrative summaries] --> G
+    H -->|No| I{Client ID matched?}
+    I -->|Yes| J[Build invoice for client] --> LOOP
+    I -->|No| K{Doula ID matched?}
+    K -->|Yes| L{Doula has assigned clients?}
+    L -->|No| G
+    L -->|Yes| M[Ask which client] --> N{Client chosen?}
+    N -->|No| G
+    N -->|Yes| J
+    K -->|No| O[Message: unknown identifier → Exit]
+    subgraph LOOP["Invoice editing loop"]
+      J --> P[Menus → quantities → add lines]
+      P --> Q[Preview invoice]
+      Q --> R{Save to disk?}
+      R -->|y| W[Write invoice file by client ID]
+      R -->|n| MORE
+      W --> MORE{Add more lines?}
+      MORE -->|y| P
+      MORE -->|n| G
+    end

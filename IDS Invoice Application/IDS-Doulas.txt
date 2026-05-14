@@ -1,0 +1,13 @@
+# Doulas have ID#s in order for their assignments to be tracked while utilizing IDS Invoicing tool to rate Assignments.
+
+Doulas ID#, First and Last Name, Address, Phone Number, Certification Expiration
+
+4823, Maryam Fatima, 124 S Kick Lane, Chicago, 231-231-2311, IL 60629, Certification expires 1/ 2027
+2343, Sarah Ann, 124 E Kick Lane, Chicago, IL 60826, 613-234-2343, Certification expires 1/ 2027
+9823, Grace Thompson, 124 E Kick Lane, Chicago, IL 60619, 616-930-2343, Certification expires 1/ 2027
+1233, Diana Gibson, 124 W Kick Lane, Chicago, IL 60119, 616-930-2343, Certification expires 1/ 2027
+9112, Sharda Sharp, 124 E Kick Lane, Chicago, IL 60214, 616-930-2343, Certification expires 1/ 2027
+4782, Ernestine Robinson, 124 E Kick Lane, Chicago, IL 60456, 616-930-2343, Certification expires 1/ 2027
+1222, Zarah Britton, 124 V Kick Lane, Chicago, IL 60764, 616-930-2343, Certification expires 1/ 2027
+0021, Olivia David, 124 E Kick Lane, Chicago, IL 60345, 616-930-2343, Certification expires 1/ 2027
+0920, Star Smith, 124 D Kick Lane, Chicago, IL 60789, 616-930-2343, Certification expires 1/ 2027

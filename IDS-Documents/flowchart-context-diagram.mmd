@@ -1,0 +1,30 @@
+flowchart LR
+    subgraph Operators["Operators"]
+      Admin[**Administrator**]
+      Doula[**Doula**]
+      Client[**Client**]
+    end
+    subgraph Files["Text files beside the program"]
+      FC[IDS-Clients.txt]
+      FD[IDS-Doulas.txt]
+      FR[IDS-Rates.txt]
+      FA[IDS-Admin.txt]
+    end
+    subgraph App["IDS_Invoice_Application.py"]
+      Core[File reading · service list · arithmetic]
+      UI[Menus and prompts]
+      Fmt[Invoice text layout]
+    end
+    Out[invoice_*.txt on disk]
+
+    FC --> Core
+    FD --> Core
+    FR --> Core
+    FA --> Core
+    Admin --> UI
+    Doula --> UI
+    Client --> UI
+    UI --> Core
+    Core --> Fmt
+    Fmt --> UI
+    Fmt -. optional .-> Out
